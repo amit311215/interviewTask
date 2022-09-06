@@ -9,7 +9,7 @@ import UIKit
 import Alamofire
 import Kingfisher
 class HomeVC: UIViewController {
-
+// MARK:- Properties and variables
     @IBOutlet weak var filterView: UIView!{
         didSet{
             filterView.isHidden = true
@@ -28,7 +28,6 @@ class HomeVC: UIViewController {
     }
     var itemCell = "CompanyDetailCell"
     var companyArr = [CompanyResponse]()
-    
     var launchesCell = "LaunchesCell"
     var launchesArr = [LaunchesResponse]()
     var filterArr = [LaunchesResponse]()
@@ -46,6 +45,7 @@ class HomeVC: UIViewController {
         getComapanyDataAPI()
         getAllLaunchesDataAPI()
     }
+    //MARK:- API Call
     func getComapanyDataAPI() {
         self.view.activityStartAnimating(activityColor: .black)
         let url = URL(string: "https://api.spacexdata.com/v4/company")
@@ -92,7 +92,7 @@ class HomeVC: UIViewController {
             }
         }
     }
-
+//MARK:- Button ClickAction
     @IBAction func onTapToFilter(_ sender: Any) {
         filterView.isHidden = false
     }
@@ -114,6 +114,7 @@ class HomeVC: UIViewController {
         tblCompanyInfo.reloadData()
     }
 }
+//MARK:- TableView DataSource Delegate Method
 extension HomeVC: UITableViewDelegate,UITableViewDataSource{
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
@@ -164,9 +165,25 @@ extension HomeVC: UITableViewDelegate,UITableViewDataSource{
             cell.lbMissionName.text = "Mission :" + " " + (data.name ?? "")
             cell.lbDateTime.text = "Date/Time :" + " " + (data.date_utc ?? "")
             cell.lbRocket.text = "Rocket :" + " " + (data.rocket ?? "")
-            cell.lbDays.text = "7"
+            
             let imgUrl = URL(string: data.links?.patch?.small ?? "")
             cell.imgPatch.kf.setImage(with: imgUrl)
+            
+            let dayDate = Date()
+            
+            let launchDate = data.date_local
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+            let compareDate = dateFormatter.date(from:launchDate!)!
+            
+            
+            if dayDate.compare(compareDate) == .orderedAscending {
+                cell.lbDays.text = "From : \(data.date_local ?? "") "
+            }else{
+                cell.lbDays.text = "Since : \(data.date_local ?? "") "
+            }
             
             if data.success == true{
                 cell.imgLaunch.image = UIImage(named: "check")
